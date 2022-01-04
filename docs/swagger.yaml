@@ -1,0 +1,186 @@
+definitions:
+  http.CreateTodo:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  http.Error:
+    properties:
+      msg:
+        type: string
+    type: object
+  http.UpdateTodo:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  todo.Todo:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /todos:
+    get:
+      consumes:
+      - application/json
+      description: Get all todos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/todo.Todo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get all todos
+      tags:
+      - todo
+    post:
+      consumes:
+      - application/json
+      description: Create todo with title and description
+      parameters:
+      - description: Todo
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateTodo'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/todo.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Create todo
+      tags:
+      - todo
+  /todos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete todo by ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/todo.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Delete todo
+      tags:
+      - todo
+    get:
+      consumes:
+      - application/json
+      description: Get todo by ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/todo.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get todo by ID
+      tags:
+      - todo
+    put:
+      consumes:
+      - application/json
+      description: Update todo with new title and description
+      parameters:
+      - description: Todo
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateTodo'
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/todo.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Update todo
+      tags:
+      - todo
+swagger: "2.0"

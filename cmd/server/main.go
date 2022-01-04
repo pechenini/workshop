@@ -17,7 +17,7 @@ import (
 	"os"
 	"strings"
 	"time"
-
+	_ "workshop/docs"
 	todo "workshop/internal/todo/http"
 )
 
