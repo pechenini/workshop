@@ -61,7 +61,7 @@ go 1.17
 
 В корне проекта есть файл `docker-compose.yml`. В нем находятся контейнеры MySQL, zookeeper, kafka.
 
-Поднимите контейнеры: 
+Поднимите контейнеры:
 
 ```bash
 docker-compose up -d
@@ -85,6 +85,50 @@ cp .env.example .env
 ```bash
 docker exec -it workshop_kafka_1 /bin/sh
 /opt/bitnami/kafka/bin/kafka-console-consumer.sh --topic todo --from-beginning --bootstrap-server localhost:9092
+```
+
+# Todo error wrapper
+
+Опишем вероятные ошибки и создадим свой враппер для ошибок в файле `internal/todo/errors.go`:
+
+```go
+package todo
+
+import (
+	"fmt"
+)
+
+const (
+	ErrValidation   = iota + 1 //starting from 1 assign to consts below val++
+	ErrInternal                // 2
+	ErrEventPublish            // 3
+	ErrNotFound                // 4
+)
+
+type Error struct {
+	Code int
+	Msg  string
+	Err  error
+}
+
+func newError(code int, msg string, err error) error {
+	return &Error{
+		Code: code,
+		Msg:  msg,
+		Err:  err,
+	}
+}
+
+func (err *Error) Unwrap() error {
+	return err.Err
+}
+
+func (err *Error) Error() string {
+	if err.Err != nil {
+		return fmt.Sprintf("%s: %s", err.Msg, err.Err.Error())
+	}
+	return err.Msg
+}
 ```
 
 # Модели Todo и Event
@@ -143,50 +187,6 @@ func newEventUpdate(todo Todo) Event {
 
 func newEventDelete(todo Todo) Event {
 	return newEvent(eventDelete, todo)
-}
-```
-
-# Todo error wrapper
-
-Опишем вероятные ошибки и создадим свой враппер для ошибок в файле `internal/todo/errors.go`:
-
-```go
-package todo
-
-import (
-	"fmt"
-)
-
-const (
-	ErrValidation   = iota + 1 //starting from 1 assign to consts below val++
-	ErrInternal                // 2
-	ErrEventPublish            // 3
-	ErrNotFound                // 4
-)
-
-type Error struct {
-	Code int
-	Msg  string
-	Err  error
-}
-
-func newError(code int, msg string, err error) error {
-	return &Error{
-		Code: code,
-		Msg:  msg,
-		Err:  err,
-	}
-}
-
-func (err *Error) Unwrap() error {
-	return err.Err
-}
-
-func (err *Error) Error() string {
-	if err.Err != nil {
-		return fmt.Sprintf("%s: %s", err.Msg, err.Err.Error())
-	}
-	return err.Msg
 }
 ```
 
@@ -421,7 +421,7 @@ import (
 )
 
 type TodoService interface {
-	Create(ctx context.Context, title string, description string) (int64, error)
+	Create(ctx context.Context, title string, description string) (todo.Todo, error)
 	GetAll(ctx context.Context) ([]todo.Todo, error)
 	GetById(ctx context.Context, id int64) (todo.Todo, error)
 	Update(ctx context.Context, todo todo.Todo) error
