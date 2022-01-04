@@ -413,7 +413,7 @@ func (c Consumer) Consume() error {
 Определим интерфейс `TodoService`  в `internal/todo/http/handler.go`:
 
 ```go
-package handler
+package http
 
 import (
 	"context"
