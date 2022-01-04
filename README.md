@@ -554,7 +554,7 @@ type Error struct {
 	Msg string `json:"msg"`
 }
 
-func NewError(ctx *gin.Context, err error) {
+func newError(ctx *gin.Context, err error) {
 	var todoError *todo.Error
 	if errors.As(err, &todoError) {
 		status, ok := httpStatusCodeMap[todoError.Code]
@@ -569,7 +569,7 @@ func NewError(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusInternalServerError, Error{Msg: todoError.Msg})
 }
 
-func BadRequest(ctx *gin.Context, err error) {
+func badRequest(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusBadRequest, Error{Msg: err.Error()})
 }
 ```
